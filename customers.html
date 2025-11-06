@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - EduScan Pro</title>
+    <link rel="stylesheet" href="styles/shared.css">
+    <link rel="stylesheet" href="styles/customers.css">
+</head>
+<body data-page="customers">
+    <div class="page-header">
+        <h1>Customer Management</h1>
+        <p>Manage and monitor all registered customers</p>
+    </div>
+
+    <div class="controls">
+        <div class="controls-row">
+            <div class="filter-group">
+                <label>Filter by Plan</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="freePlan" checked>
+                        <span onclick="document.getElementById('freePlan').click()">Free Plan</span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="proPlan" checked>
+                        <span onclick="document.getElementById('proPlan').click()">Pro Plan</span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="maxPlan" checked>
+                        <span onclick="document.getElementById('maxPlan').click()">Max Plan</span>
+                    </div>
+                </div>
+            </div>
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Search by name or email...">
+            </div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stats-item">
+            <span>Total Users:</span>
+            <strong id="totalCount">0</strong>
+        </div>
+        <div class="stats-item">
+            <span>Free Plan:</span>
+            <strong id="freeCount">0</strong>
+        </div>
+        <div class="stats-item">
+            <span>Pro Plan:</span>
+            <strong id="proCount">0</strong>
+        </div>
+        <div class="stats-item">
+            <span>Max Plan:</span>
+            <strong id="maxCount">0</strong>
+        </div>
+        <div class="stats-item">
+            <span>Filtered Results:</span>
+            <strong id="filteredCount">0</strong>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th data-column="id">ID</th>
+                    <th data-column="name">Name</th>
+                    <th data-column="email">Email</th>
+                    <th data-column="plan">Plan</th>
+                    <th data-column="status">Status</th>
+                    <th data-column="registrationDate">Registration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- Users will be populated here -->
+            </tbody>
+        </table>
+        <div id="noResults" class="no-results">
+            No users found matching your filters.
+        </div>
+    </div>
+
+    <!-- Modal for viewing user details -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- User details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sidebar.js"></script>
+    <script src="js/customers.js"></script>
+</body>
+</html>

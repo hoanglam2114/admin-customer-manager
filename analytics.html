@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visit Analytics - EduScan Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles/shared.css">
+    <link rel="stylesheet" href="styles/analytics.css">
+</head>
+<body data-page="analytics">
+    <div class="page-header">
+        <h1>Visit Analytics</h1>
+        <p>Track visitor registrations and growth trends over time</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Visitors</div>
+            <div class="stat-value" id="totalVisits">0</div>
+            <div class="stat-trend trend-neutral">
+                <span>All-time registrations</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Average Per Day</div>
+            <div class="stat-value" id="avgPerDay">0</div>
+            <div class="stat-trend trend-neutral">
+                <span id="avgTrend">Calculating...</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Growth Rate</div>
+            <div class="stat-value" id="growthRate">0%</div>
+            <div id="growthTrendText" class="stat-trend trend-neutral">
+                <span>Loading...</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Peak Day</div>
+            <div class="stat-value" id="peakDay">0</div>
+            <div class="stat-trend trend-neutral">
+                <span id="peakDayDate">Highest single day</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <div class="chart-title">Visitor Registration Trends</div>
+            <div class="chart-subtitle">Daily visitor registrations over time</div>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="visitsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="info-title">About This Analytics</div>
+        <div class="info-text">
+            This dashboard tracks visitor registrations across different time periods, showing daily trends and growth patterns. 
+            The growth rate compares the last 7 days with the previous 7 days to identify upward or downward trends. 
+            Use this data to understand user acquisition patterns and optimize your marketing strategies.
+        </div>
+    </div>
+
+    <script src="js/sidebar.js"></script>
+    <script src="js/analytics.js"></script>
+</body>
+</html>
