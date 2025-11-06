@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            padding: 20px;
+            color: #4c1d95;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(109, 40, 217, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px 40px;
+            background: #faf8ff;
+            border-bottom: 1px solid #e9d5ff;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6d28d9;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #8b5cf6;
+        }
+
+        .checkbox-item span {
+            font-size: 14px;
+            color: #4c1d95;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .search-group {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9d5ff;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-top: 28px;
+        }
+
+        .search-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .stats {
+            padding: 20px 40px;
+            background: #fefce8;
+            border-bottom: 1px solid #fde68a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #78350f;
+        }
+
+        .stats-item strong {
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .table-container {
+            padding: 30px 40px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f3ff;
+        }
+
+        thead th {
+            padding: 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6d28d9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        thead th:hover {
+            background: #ede9fe;
+        }
+
+        thead th::after {
+            content: '⇅';
+            position: absolute;
+            right: 16px;
+            opacity: 0.3;
+            font-size: 12px;
+        }
+
+        thead th.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        thead th.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f3e8ff;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #faf8ff;
+        }
+
+        tbody td {
+            padding: 16px;
+            font-size: 14px;
+            color: #4c1d95;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .plan-free {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .plan-pro {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .plan-max {
+            background: #fce7f3;
+            color: #9f1239;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .btn-view:hover {
+            background: #c4b5fd;
+        }
+
+        .btn-edit {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .btn-edit:hover {
+            background: #93c5fd;
+        }
+
+        .btn-delete {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .btn-delete:hover {
+            background: #fca5a5;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9333ea;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #6d28d9;
+            font-size: 22px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #9333ea;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            color: #4c1d95;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3e8ff;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 140px;
+            color: #6d28d9;
+        }
+
+        .detail-value {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+            }
+
+            .table-container {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .controls {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            thead th,
+            tbody td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Customer Management</h1>
+                <p>Manage and filter customer accounts by plan type</p>
+            </div>
+            <a href="visits-analytics.html"
+                style="background: rgba(255, 255, 255, 0.2); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;">
+                View Analytics →
+            </a>
+        </div>
+
+        <div class="controls">
+            <div class="controls-row">
+                <div class="filter-group">
+                    <label>Filter by Plans</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="freePlan" value="Free Plan" checked>
+                            <span onclick="document.getElementById('freePlan').click()">Free Plan</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="proPlan" value="Pro Plan" checked>
+                            <span onclick="document.getElementById('proPlan').click()">Pro Plan</span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="maxPlan" value="Max Plan" checked>
+                            <span onclick="document.getElementById('maxPlan').click()">Max Plan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-group">
+                    <input type="text" id="searchInput" placeholder="Search by name or email...">
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stats-item">
+                <strong>Total Accounts:</strong> <span id="totalCount">0</span>
+            </div>
+            <div class="stats-item">
+                <strong>Free Plan:</strong> <span id="freeCount">0</span>
+            </div>
+            <div class="stats-item">
+                <strong>Pro Plan:</strong> <span id="proCount">0</span>
+            </div>
+            <div class="stats-item">
+                <strong>Max Plan:</strong> <span id="maxCount">0</span>
+            </div>
+            <div class="stats-item">
+                <strong>Showing:</strong> <span id="filteredCount">0</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-column="id">ID</th>
+                        <th data-column="name">Name</th>
+                        <th data-column="email">Email</th>
+                        <th data-column="plan">Plan</th>
+                        <th data-column="status">Status</th>
+                        <th data-column="registrationDate">Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Data will be populated here by JavaScript -->
+                </tbody>
+            </table>
+            <div id="noResults" class="no-results" style="display: none;">
+                No users found matching your criteria.
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for viewing user details -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- User details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentSort = { column: null, direction: 'asc' };
+
+        // Fetch users from JSON file
+        async function fetchUsers() {
+            try {
+                const response = await fetch('users.json');
+                allUsers = (await response.json()).users;
+                filterAndRenderUsers();
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('noResults').style.display = 'block';
+                document.getElementById('noResults').textContent = 'Error loading user data. Please ensure users.json is in the same directory.';
+            }
+        }
+
+        // Filter users based on checkboxes and search input
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const freePlanChecked = document.getElementById('freePlan').checked;
+            const proPlanChecked = document.getElementById('proPlan').checked;
+            const maxPlanChecked = document.getElementById('maxPlan').checked;
+
+            filteredUsers = allUsers.filter(user => {
+                // Filter by plan
+                const planMatch =
+                    (freePlanChecked && user.plan === 'Free Plan') ||
+                    (proPlanChecked && user.plan === 'Pro Plan') ||
+                    (maxPlanChecked && user.plan === 'Max Plan');
+
+                if (!planMatch) return false;
+
+                // Filter by search term
+                if (searchTerm) {
+                    const nameMatch = user.name.toLowerCase().includes(searchTerm);
+                    const emailMatch = user.email.toLowerCase().includes(searchTerm);
+                    return nameMatch || emailMatch;
+                }
+
+                return true;
+            });
+
+            // Apply current sort if any
+            if (currentSort.column) {
+                sortUsers(currentSort.column, false);
+            }
+        }
+
+        // Sort users by column
+        function sortUsers(column, toggleDirection = true) {
+            if (toggleDirection) {
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.column = column;
+                    currentSort.direction = 'asc';
+                }
+            }
+
+            filteredUsers.sort((a, b) => {
+                let valueA = a[column];
+                let valueB = b[column];
+
+                // Handle numbers
+                if (column === 'id') {
+                    valueA = parseInt(valueA);
+                    valueB = parseInt(valueB);
+                }
+
+                // Handle dates
+                if (column === 'registrationDate') {
+                    valueA = new Date(valueA);
+                    valueB = new Date(valueB);
+                }
+
+                // Handle strings
+                if (typeof valueA === 'string') {
+                    valueA = valueA.toLowerCase();
+                    valueB = valueB.toLowerCase();
+                }
+
+                if (valueA < valueB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valueA > valueB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            updateSortIndicators();
+        }
+
+        // Update sort indicators in table headers
+        function updateSortIndicators() {
+            document.querySelectorAll('thead th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.column === currentSort.column) {
+                    th.classList.add(`sort-${currentSort.direction}`);
+                }
+            });
+        }
+
+        // Render users in the table
+        function renderUsers() {
+            const tbody = document.getElementById('userTableBody');
+            const noResults = document.getElementById('noResults');
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            tbody.innerHTML = filteredUsers.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td><span class="plan-badge plan-${user.plan.toLowerCase().replace(' ', '-')}">${user.plan}</span></td>
+                    <td><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></td>
+                    <td>${formatDate(user.registrationDate)}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-view" onclick="viewUser(${user.id})">View</button>
+                            <button class="btn btn-edit" onclick="editUser(${user.id})">Edit</button>
+                            <button class="btn btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allUsers.length;
+            document.getElementById('freeCount').textContent = allUsers.filter(u => u.plan === 'Free Plan').length;
+            document.getElementById('proCount').textContent = allUsers.filter(u => u.plan === 'Pro Plan').length;
+            document.getElementById('maxCount').textContent = allUsers.filter(u => u.plan === 'Max Plan').length;
+            document.getElementById('filteredCount').textContent = filteredUsers.length;
+        }
+
+        // Format date to readable format
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        // Filter and render users
+        function filterAndRenderUsers() {
+            filterUsers();
+            renderUsers();
+        }
+
+        // View user details
+        function viewUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">ID:</div>
+                    <div class="detail-value">${user.id}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Name:</div>
+                    <div class="detail-value">${user.name}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value">${user.email}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Plan:</div>
+                    <div class="detail-value"><span class="plan-badge plan-${user.plan.toLowerCase().replace(' ', '-')}">${user.plan}</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Status:</div>
+                    <div class="detail-value"><span class="status-badge status-${user.status.toLowerCase()}">${user.status}</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Registration Date:</div>
+                    <div class="detail-value">${formatDate(user.registrationDate)}</div>
+                </div>
+            `;
+
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        // Edit user (placeholder)
+        function editUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            alert(`Edit functionality for ${user.name} (ID: ${userId})\n\nThis is a placeholder. You can implement edit functionality here.`);
+        }
+
+        // Delete user (placeholder)
+        function deleteUser(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+                alert(`Delete functionality for ${user.name} (ID: ${userId})\n\nThis is a placeholder. You can implement delete functionality here.`);
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('userModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Event listeners
+        document.getElementById('freePlan').addEventListener('change', filterAndRenderUsers);
+        document.getElementById('proPlan').addEventListener('change', filterAndRenderUsers);
+        document.getElementById('maxPlan').addEventListener('change', filterAndRenderUsers);
+        document.getElementById('searchInput').addEventListener('input', filterAndRenderUsers);
+
+        // Add click handlers to table headers for sorting
+        document.querySelectorAll('thead th[data-column]').forEach(th => {
+            th.addEventListener('click', () => {
+                sortUsers(th.dataset.column);
+                renderUsers();
+            });
+        });
+
+        // Initialize
+        fetchUsers();
+    </script>
+</body>
+
+</html>

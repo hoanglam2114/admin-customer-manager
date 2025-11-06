@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>EduScan - Payment</title>
+    <style>
+        :root {
+            --left-bg: #07070a;
+            --left-contrast: #0b0b0f
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            background: #fff
+        }
+
+        .checkout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .left {
+            flex: 1;
+            background: linear-gradient(180deg, var(--left-bg), #0f1724);
+            color: #fff;
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start
+        }
+
+        .summary {
+            max-width: 520px;
+            width: 100%
+        }
+
+        .price {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 12px 0
+        }
+
+        .plan-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin: 18px 0
+        }
+
+        .muted {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px
+        }
+
+        .right {
+            width: 520px;
+            background: #fff;
+            padding: 40px;
+            border-left: 1px solid #eef2ff
+        }
+
+        .qr-section {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 12px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .qr-container img {
+            width: 220px;
+            height: 220px;
+            display: block;
+        }
+
+        .download-qr-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .download-qr-btn:hover {
+            background: #4f46e5;
+        }
+
+        .bank-info {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: left;
+        }
+
+        .bank-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .bank-info-item:last-child {
+            border-bottom: none
+        }
+
+        .bank-info-label {
+            color: #64748b;
+            font-size: 14px
+        }
+
+        .bank-info-value {
+            font-weight: 600;
+            color: #0f172a
+        }
+
+        .transaction-input {
+            margin: 20px 0;
+        }
+
+        .transaction-input input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .transaction-input input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .confirm-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.2s;
+        }
+
+        .confirm-btn:hover {
+            background: #059669
+        }
+
+        .confirm-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #94a3b8
+        }
+
+        .small {
+            font-size: 13px;
+            color: #6b7280
+        }
+
+        .error {
+            color: #dc2626;
+            margin-top: 8px;
+            font-size: 14px;
+            background: #fee;
+            padding: 12px;
+            border-radius: 6px;
+            display: none
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .step-number {
+            background: #6366f1;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        /* Loading state */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            color: #ef4444;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .error-state h3 {
+            margin-bottom: 8px;
+        }
+
+        .error-state p {
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .error-state button {
+            margin-top: 16px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .error-state button:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 920px) {
+            .checkout {
+                flex-direction: column
+            }
+
+            .right {
+                width: 100%;
+                border-left: none
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <div>Đang tải thông tin thanh toán...</div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent" class="checkout" style="display: none;">
+    <div class="left">
+        <div class="summary">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:48px;height:48px;background:#0b0b0f;border-radius:8px;display:flex;align-items:center;justify-content:center">
+                    📦
+                </div>
+                <div class="muted">Subscribe to EduScan Pro</div>
+            </div>
+            <div class="price"><span id="displayPrice">0</span> <span class="muted" style="font-size:14px">VND</span>
+            </div>
+
+            <div class="plan-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <div style="font-weight:700" id="planName">-</div>
+                        <div class="small muted" id="planDesc">-</div>
+                    </div>
+                    <div style="font-weight:700" id="planPrice">0 VND</div>
+                </div>
+            </div>
+
+            <div class="muted">Subtotal <span style="float:right" id="subtotal">0 VND</span></div>
+            <div class="muted">Tax <span style="float:right">0 VND</span></div>
+            <div style="height:12px"></div>
+            <div style="font-weight:700">Total due today <span style="float:right" id="total">0 VND</span></div>
+        </div>
+    </div>
+
+    <div class="right">
+        <h2 style="margin:0 0 12px 0">Thanh toán</h2>
+        <div style="margin-bottom:12px">
+            <a href="plans.html"
+               style="text-decoration:none;color:#374151;border:1px solid #eef2ff;padding:8px 10px;border-radius:8px;display:inline-block">← Chọn lại gói</a>
+        </div>
+
+        <div class="step-indicator">
+            <span class="step-number">1</span>
+            <span>Quét mã QR để chuyển khoản</span>
+        </div>
+
+        <div class="qr-section">
+            <h3 style="margin:0 0 8px 0;color:#0f172a">Quét mã QR thanh toán</h3>
+            <p class="small" style="margin:0 0 12px 0">Sử dụng ứng dụng ngân hàng để quét mã</p>
+
+            <div class="qr-container">
+                <img src="images/qrbank.png" alt="QR Code" id="qrCodeImage"/>
+            </div>
+            
+            <button class="download-qr-btn" onclick="downloadQRCode()">
+                ⬇ Tải mã QR
+            </button>
+
+            <div class="bank-info">
+                <div class="bank-info-item">
+                    <span class="bank-info-label">Ngân hàng</span>
+                    <span class="bank-info-value">TECHCOMBANK</span>
+                </div>
+                <div class="bank-info-item">
+                    <span class="bank-info-label">Số tài khoản</span>
+                    <span class="bank-info-value">7070 7111 1200 3</span>
+                </div>
+                <div class="bank-info-item">
+                    <span class="bank-info-label">Chủ tài khoản</span>
+                    <span class="bank-info-value">HOANG MY HANH</span>
+                </div>
+                <div class="bank-info-item">
+                    <span class="bank-info-label">Số tiền</span>
+                    <span class="bank-info-value" id="amountDisplay">0 VND</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-indicator">
+            <span class="step-number">2</span>
+            <span>Nhập mã giao dịch từ ngân hàng</span>
+        </div>
+
+        <div class="transaction-input">
+            <input
+                    type="text"
+                    id="transactionCode"
+                    placeholder="Nhập mã giao dịch (VD: FT23123456789)"
+                    maxlength="50"
+            />
+            <p class="small" style="margin:8px 0 0 0">Mã giao dịch có thể tìm thấy trong lịch sử giao dịch ngân hàng của bạn</p>
+        </div>
+
+        <button id="confirmBtn" class="confirm-btn">✓ Tôi đã chuyển khoản</button>
+
+        <div class="error" id="error"></div>
+
+        <p class="small" style="margin-top:16px;text-align:center">
+            Sau khi xác nhận, gói dịch vụ sẽ được kích hoạt ngay lập tức và bạn sẽ nhận được email xác nhận.
+        </p>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'api';
+    const params = new URLSearchParams(window.location.search);
+    const planId = params.get('planId');
+    const planType = params.get('plan');
+
+    let selectedPlan = null;
+
+    // Function to check authentication
+    async function checkAuthentication() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const mainContent = document.getElementById('mainContent');
+
+        try {
+            // Get token from localStorage
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                throw new Error('NO_TOKEN');
+            }
+
+            // Verify token by calling user API
+            const response = await fetch('/api/user/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                throw new Error('UNAUTHORIZED');
+            }
+
+            // Handle other errors
+            if (!response.ok) {
+                throw new Error('API_ERROR');
+            }
+
+            // Authentication successful - load plan data
+            await loadPlan(token);
+
+            // Hide loading, show main content
+            loadingOverlay.style.display = 'none';
+            mainContent.style.display = 'flex';
+
+        } catch (error) {
+            console.error('Authentication error:', error);
+            handleAuthError(error);
+        }
+    }
+
+    // Handle authentication errors
+    function handleAuthError(error) {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingContent = loadingOverlay.querySelector('.loading-content');
+
+        let errorMessage = 'Không thể tải thông tin thanh toán';
+        let errorDescription = 'Vui lòng thử lại sau';
+        let actionButton = `
+            <button onclick="window.location.reload()">
+                Tải lại
+            </button>
+        `;
+
+        // Handle specific error types
+        if (error.message === 'NO_TOKEN') {
+            errorMessage = 'Chưa đăng nhập';
+            errorDescription = 'Vui lòng đăng nhập để tiếp tục thanh toán';
+            actionButton = `
+                <button onclick="redirectToLogin()">
+                    Đăng nhập
+                </button>
+            `;
+        } else if (error.message === 'UNAUTHORIZED') {
+            errorMessage = 'Phiên đăng nhập đã hết hạn';
+            errorDescription = 'Vui lòng đăng nhập lại để tiếp tục';
+            actionButton = `
+                <button onclick="redirectToLogin(true)">
+                    Đăng nhập lại
+                </button>
+            `;
+        }
+
+        // Display error message
+        loadingContent.innerHTML = `
+            <div class="error-state">
+                <h3>❌ ${errorMessage}</h3>
+                <p>${errorDescription}</p>
+                ${actionButton}
+            </div>
+        `;
+    }
+
+    // Redirect to login page
+    function redirectToLogin(clearToken = false) {
+        if (clearToken) {
+            localStorage.removeItem('authToken');
+        }
+        // Save current page URL to redirect back after login
+        const returnUrl = encodeURIComponent(window.location.href);
+        window.location.href = `login.html?return=${returnUrl}`;
+    }
+
+    // Load plan information
+    async function loadPlan(token) {
+        try {
+            let pId = planId || (planType === 'month' ? 1 : planType === 'year' ? 2 : 1);
+
+            const response = await fetch(`${API_BASE}/plans/${pId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to load plan');
+
+            selectedPlan = await response.json();
+
+            const priceFormatted = selectedPlan.price.toLocaleString('vi-VN');
+            document.getElementById('planName').textContent = selectedPlan.name;
+            document.getElementById('planDesc').textContent = selectedPlan.description || 'Premium features';
+            document.getElementById('planPrice').textContent = priceFormatted + ' VND';
+            document.getElementById('displayPrice').textContent = priceFormatted;
+            document.getElementById('subtotal').textContent = priceFormatted + ' VND';
+            document.getElementById('total').textContent = priceFormatted + ' VND';
+            document.getElementById('amountDisplay').textContent = priceFormatted + ' VND';
+        } catch (error) {
+            console.error('Error loading plan:', error);
+            throw error;
+        }
+    }
+
+    // Download QR code
+    function downloadQRCode() {
+        const qrImage = document.getElementById('qrCodeImage');
+        const link = document.createElement('a');
+        link.href = qrImage.src;
+        link.download = 'EduScan_Payment_QR.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Confirm payment
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+        const transactionCode = document.getElementById('transactionCode').value?.trim();
+        if (!transactionCode) {
+            showError('Vui lòng nhập mã giao dịch');
+            return;
+        }
+        if (!selectedPlan) {
+            showError('Thông tin gói chưa được tải');
+            return;
+        }
+
+        const token = localStorage.getItem('authToken');
+        
+        // Parse JWT to get email (optional - for display purposes)
+        const payload = parseJwt(token);
+        const email = payload.sub || 'user@example.com';
+
+        window.location.href = `payment-success.html?tx=${encodeURIComponent(transactionCode)}&plan=${encodeURIComponent(selectedPlan.name)}&email=${encodeURIComponent(email)}`;
+    });
+
+    // Show error message
+    function showError(message) {
+        const e = document.getElementById('error');
+        e.textContent = message;
+        e.style.display = 'block';
+        setTimeout(() => {
+            e.style.display = 'none';
+        }, 5000);
+    }
+
+    // Parse JWT token
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return { sub: 'user@example.com' };
+        }
+    }
+
+    // Initialize on page load
+    checkAuthentication();
+</script>
+
+</body>
+</html>
