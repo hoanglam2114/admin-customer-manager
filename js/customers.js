@@ -20,14 +20,14 @@ function filterUsers() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const freePlanChecked = document.getElementById('freePlan').checked;
     const proPlanChecked = document.getElementById('proPlan').checked;
-    const maxPlanChecked = document.getElementById('maxPlan').checked;
+    const maxPlanChecked = document.getElementById('busiPlan').checked;
 
     filteredUsers = allUsers.filter(user => {
         // Filter by plan
         const planMatch =
             (freePlanChecked && user.plan === 'Free Plan') ||
             (proPlanChecked && user.plan === 'Pro Plan') ||
-            (maxPlanChecked && user.plan === 'Max Plan');
+            (maxPlanChecked && user.plan === 'Business Plan');
 
         if (!planMatch) return false;
 
@@ -137,7 +137,7 @@ function updateStats() {
     document.getElementById('totalCount').textContent = allUsers.length;
     document.getElementById('freeCount').textContent = allUsers.filter(u => u.plan === 'Free Plan').length;
     document.getElementById('proCount').textContent = allUsers.filter(u => u.plan === 'Pro Plan').length;
-    document.getElementById('maxCount').textContent = allUsers.filter(u => u.plan === 'Max Plan').length;
+    document.getElementById('maxCount').textContent = allUsers.filter(u => u.plan === 'Business Plan').length;
     document.getElementById('filteredCount').textContent = filteredUsers.length;
 }
 
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners
     document.getElementById('freePlan').addEventListener('change', filterAndRenderUsers);
     document.getElementById('proPlan').addEventListener('change', filterAndRenderUsers);
-    document.getElementById('maxPlan').addEventListener('change', filterAndRenderUsers);
+    document.getElementById('busiPlan').addEventListener('change', filterAndRenderUsers);
     document.getElementById('searchInput').addEventListener('input', filterAndRenderUsers);
 
     // Add click handlers to table headers for sorting
